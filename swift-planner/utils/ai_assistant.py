@@ -15,5 +15,8 @@ def get_ai_response(user_input):
     elif "help" in user_input:
         return "You can ask me about adding events, managing guests, or sending invites."
 
+    elif "how to create event" in user_input or "create event" in user_input:
+        return "To create an event, click 'Create Event' and fill in the details like name, date, and location."
+
     else:
         return "Sorry, I’m not sure how to help with that. Try asking something else!"
