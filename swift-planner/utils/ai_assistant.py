@@ -1,22 +1,27 @@
 # utils/ai_assistant.py
 
 def get_ai_response(user_input):
-    user_input = user_input.lower()
+    prompt = f"""
+You are Sia, a friendly and intelligent virtual assistant in the Swift Planner application.
+Your job is to help event planners manage and optimize their events.
 
-    if "add guest" in user_input or "guest list" in user_input:
-        return "To add guests, go to your event, then click 'Manage Guests'."
+Capabilities:
+- Explain how Swift Planner features work.
+- Remind the user of upcoming events.
+- Suggest venues in a given city for a specific number of guests.
+- Offer useful event planning tips.
 
-    elif "reminder" in user_input or "invite" in user_input:
-        return "Don't forget to send invitations a week before the event!"
+Respond clearly, in a friendly and helpful tone.
 
-    elif "best time" in user_input:
-        return "The best time to host an event is usually on weekends after 3PM."
-
-    elif "help" in user_input:
-        return "You can ask me about adding events, managing guests, or sending invites."
-
-    elif "how to create event" in user_input or "create event" in user_input:
-        return "To create an event, click 'Create Event' and fill in the details like name, date, and location."
-
+User: {user_input}
+Sia:
+"""
+    # Simulate a response — we'll replace this with a real AI model or logic later
+    if "how do I create an event" in user_input.lower():
+        return "To create an event, go to the Dashboard > Create Event. Fill in the name, date, location, and description."
+    elif "remind me" in user_input.lower() or "upcoming event" in user_input.lower():
+        return "You have an event called 'Launch Party' on April 20 at The Grand Hall."
+    elif "venue" in user_input.lower():
+        return "Based on your location and number of guests, I suggest: 'Skyline Venue', 'Lakeside Gardens', or 'Urban Loft'."
     else:
-        return "Sorry, I’m not sure how to help with that. Try asking something else!"
+        return "I'm here to help! You can ask me anything about managing events with Swift Planner."
