@@ -5,7 +5,7 @@ from PIL import Image, ImageTk
 import os
 
 
-def show_landing_page(root):
+def show_landing_page(root, on_signup=None, on_signin=None):
     for widget in root.winfo_children():
         widget.destroy()
 
@@ -22,11 +22,11 @@ def show_landing_page(root):
     nav_buttons.pack(side="right", padx=20)
 
     signup_btn = tk.Button(nav_buttons, text="Sign Up",
-                           font=("Arial", 12), bg="red", fg="black")
+                           font=("Arial", 12), bg="red", fg="black", borderwidth=5, command=on_signup)
     signup_btn.pack(side="left", padx=10)
 
     signin_btn = tk.Button(nav_buttons, text="Sign In",
-                           font=("Arial", 12), bg="red", fg="black")
+                           font=("Arial", 12), bg="red", fg="black",  borderwidth=5, command=on_signin)
     signin_btn.pack(side="left")
 
     # Slideshow Frame
@@ -44,8 +44,17 @@ def show_landing_page(root):
     slide_label = tk.Label(slideshow_frame)
     slide_label.pack()
 
+    heading_label = tk.Label(
+        slideshow_frame,
+        text="Welcome to Swift Planner, where event planning is made simple.",
+        font=("Helvetica", 22, "bold"),
+        fg="black",
+        bg="white",  # Match background to avoid TclError
+    )
+    heading_label.place(relx=0.5, rely=0.08, anchor="center")
+
     caption_label = tk.Label(slideshow_frame, text="", font=(
-        "Helvetica", 16, "bold"), fg="white", bg="black", padx=10, pady=5)
+        "Helvetica", 16, "bold"), fg="white", bg="black", padx=300, pady=0)
     caption_label.place(relx=0.02, rely=0.85, anchor="sw")
 
     def update_slideshow(index=0):

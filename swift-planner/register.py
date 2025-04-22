@@ -1,6 +1,8 @@
 import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageTk
+from db import insert_user_data  # Import the function from db.py
+from PIL import Image, ImageTk  # Import Image and ImageTk from PIL
+
 
 def show_register(app, users):
     from login import show_login
@@ -20,36 +22,43 @@ def show_register(app, users):
         print("❌ bg.jpg not found.")
         bg_img = None
 
-    canvas = tk.Canvas(app, width=app_width, height=app_height, highlightthickness=0)
+    canvas = tk.Canvas(app, width=app_width,
+                       height=app_height, highlightthickness=0)
     canvas.pack(fill="both", expand=True)
 
     if bg_img:
         canvas.create_image(0, 0, image=bg_img, anchor="nw")
         canvas.image = bg_img  # Keep reference
 
-   
     # Registration container
     container = tk.Frame(app, bg="#ffffff")
     container.place(relx=0.5, rely=0.5, anchor="center", width=400, height=400)
 
-    tk.Label(container, text="Swift Planner", font=("Helvetica", 20, "bold"), fg="#000000", bg="white").pack(pady=(20, 10))
+    tk.Label(container, text="Swift Planner", font=("Helvetica", 20,
+             "bold"), fg="#000000", bg="white").pack(pady=(20, 10))
 
     # Name
-    tk.Label(container, text="Name", font=("Arial", 12), fg="#333", bg="white").pack(pady=(5, 0))
-    entry_name = tk.Entry(container, font=("Arial", 12), width=30, bd=1, relief="solid")
+    tk.Label(container, text="Name", font=("Arial", 12),
+             fg="#333", bg="white").pack(pady=(5, 0))
+    entry_name = tk.Entry(container, font=("Arial", 12),
+                          width=30, bd=1, relief="solid")
     entry_name.pack(pady=(0, 10))
 
     # Email
-    tk.Label(container, text="Email", font=("Arial", 12), fg="#333", bg="white").pack(pady=(5, 0))
-    entry_email = tk.Entry(container, font=("Arial", 12), width=30, bd=1, relief="solid")
+    tk.Label(container, text="Email", font=("Arial", 12),
+             fg="#333", bg="white").pack(pady=(5, 0))
+    entry_email = tk.Entry(container, font=("Arial", 12),
+                           width=30, bd=1, relief="solid")
     entry_email.pack(pady=(0, 10))
 
     # Password with toggle
-    tk.Label(container, text="Password", font=("Arial", 12), fg="#333", bg="white").pack(pady=(5, 0))
+    tk.Label(container, text="Password", font=("Arial", 12),
+             fg="#333", bg="white").pack(pady=(5, 0))
     password_frame = tk.Frame(container, bg="white")
     password_frame.pack(pady=(0, 10))
 
-    entry_password = tk.Entry(password_frame, show="*", font=("Arial", 12), width=24, bd=1, relief="solid")
+    entry_password = tk.Entry(password_frame, show="*",
+                              font=("Arial", 12), width=24, bd=1, relief="solid")
     entry_password.pack(side="left")
 
     show_password = False
@@ -60,15 +69,18 @@ def show_register(app, users):
         entry_password.config(show="" if show_password else "*")
         toggle_btn.config(text="🙈" if show_password else "👁")
 
-    toggle_btn = tk.Button(password_frame, text="👁", command=toggle_password, bg="white", bd=0)
+    toggle_btn = tk.Button(password_frame, text="👁",
+                           command=toggle_password, bg="white", bd=0)
     toggle_btn.pack(side="left", padx=5)
 
     # Confirm Password with toggle
-    tk.Label(container, text="Confirm Password", font=("Arial", 12), fg="#333", bg="white").pack(pady=(5, 0))
+    tk.Label(container, text="Confirm Password", font=(
+        "Arial", 12), fg="#333", bg="white").pack(pady=(5, 0))
     confirm_frame = tk.Frame(container, bg="white")
     confirm_frame.pack(pady=(0, 20))
 
-    entry_confirm = tk.Entry(confirm_frame, show="*", font=("Arial", 12), width=24, bd=1, relief="solid")
+    entry_confirm = tk.Entry(confirm_frame, show="*",
+                             font=("Arial", 12), width=24, bd=1, relief="solid")
     entry_confirm.pack(side="left")
 
     show_confirm = False
@@ -79,7 +91,8 @@ def show_register(app, users):
         entry_confirm.config(show="" if show_confirm else "*")
         toggle_confirm_btn.config(text="🙈" if show_confirm else "👁")
 
-    toggle_confirm_btn = tk.Button(confirm_frame, text="👁", command=toggle_confirm, bg="white", bd=0)
+    toggle_confirm_btn = tk.Button(
+        confirm_frame, text="👁", command=toggle_confirm, bg="white", bd=0)
     toggle_confirm_btn.pack(side="left", padx=5)
 
     # Registration logic
@@ -97,17 +110,26 @@ def show_register(app, users):
             messagebox.showerror("Error", "Passwords do not match.")
             return
 
-        if email in users:
+        # Check if the email already exists in MongoDB
+        from pymongo import MongoClient
+
+        # Connect to MongoDB and define the collection
+        # Replace with your MongoDB URI
+        client = MongoClient("mongodb://localhost:27017/")
+        db = client["swift_planner"]  # Replace with your database name
+        users_collection = db["users"]  # Replace with your collection name
+
+        if users_collection.find_one({"email": email}):
             messagebox.showerror("Error", "Email already registered.")
             return
 
-        users[email] = {"name": name, "password": password}
+        # Store data in MongoDB
+        insert_user_data(name, email, password)
         messagebox.showinfo("Success", "Registration successful!")
         show_login(app, users)
 
     # Buttons
-    tk.Button(container, text="Register", command=register_user, bg="#1565C0", fg="white",
-              font=("Arial", 8, "bold"), width=10).pack(pady=5)
-
-    tk.Button(container, text="Back to Login", command=lambda: show_login(app, users), bg="#64B5F6", fg="white",
-              font=("Arial", 8, "bold"), width=10).pack(pady=5)
+    tk.Button(container, text="Register", command=register_user, bg="#1565C0",
+              fg="white", font=("Arial", 8, "bold"), width=10).pack(pady=5)
+    tk.Button(container, text="Back to Login", command=lambda: show_login(
+        app, users), bg="#64B5F6", fg="white", font=("Arial", 8, "bold"), width=10).pack(pady=5)
