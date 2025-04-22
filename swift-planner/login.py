@@ -1,6 +1,9 @@
 import tkinter as tk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+from firebase_admin import firestore
+import bcrypt
+from event_ui import show_EventPlannerApp  # Import the event UI function
 
 
 def show_login(app, users):
@@ -73,14 +76,34 @@ def show_login(app, users):
                            command=toggle_password, bg="white", bd=0)
     toggle_btn.pack(side="left", padx=5)
 
-    # Login function
+    # Firebase login function
     def login_user():
         email = entry_email.get()
         password = entry_password.get()
-        user = users.get(email)
-        if user and user["password"] == password:
-            messagebox.showinfo("Login Successful", f"Welcome {user['name']}!")
-        else:
+
+        if not email or not password:
+            messagebox.showerror("Error", "Both fields are required.")
+            return
+
+        # Check if the email exists in Firebase Firestore
+        db = firestore.client()
+        users_ref = db.collection("users")
+        query = users_ref.where("email", "==", email).stream()
+
+        user_found = False
+        for user in query:
+            user_data = user.to_dict()
+            # Hashed password in Firebase
+            stored_password = user_data["password"]
+            if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
+                user_found = True
+                # Redirect to event UI after successful login
+                from event_ui import event_ui
+                # Call the function to load the event UI
+                show_EventPlannerApp(app)
+                break
+
+        if not user_found:
             messagebox.showerror("Login Failed", "Invalid email or password.")
 
     # Buttons

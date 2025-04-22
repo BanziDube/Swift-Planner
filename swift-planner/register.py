@@ -110,20 +110,14 @@ def show_register(app, users):
             messagebox.showerror("Error", "Passwords do not match.")
             return
 
-        # Check if the email already exists in MongoDB
-        from pymongo import MongoClient
+        try:
+            # Attempt to store the data in Firebase
+            insert_user_data(name, email, password)
+            messagebox.showinfo("Success", "Registration successful!")
+            show_login(app, users)
 
-        # Connect to MongoDB and define the collection
-        # Replace with your MongoDB URI
-        client = MongoClient("mongodb://localhost:27017/")
-        db = client["swift_planner"]  # Replace with your database name
-        users_collection = db["users"]  # Replace with your collection name
-
-        if users_collection.find_one({"email": email}):
-            messagebox.showerror("Error", "Email already registered.")
-            return
-
-        # Store data in MongoDB
+        except Exception as e:
+            messagebox.showerror("Error", f"Registration failed.\n{e}")
         insert_user_data(name, email, password)
         messagebox.showinfo("Success", "Registration successful!")
         show_login(app, users)
