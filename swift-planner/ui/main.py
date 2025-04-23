@@ -1,5 +1,6 @@
 import tkinter as tk
 from login import show_login
+from event_ui import EventPlannerApp  # Import the event UI function
 
 
 # Global user storage (simulating a database)

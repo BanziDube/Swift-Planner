@@ -3,7 +3,7 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 from firebase_admin import firestore
 import bcrypt
-from event_ui import show_EventPlannerApp  # Import the event UI function
+from event_ui import EventPlannerApp  # Import the event UI function
 
 
 def show_login(app, users):
@@ -97,10 +97,13 @@ def show_login(app, users):
             stored_password = user_data["password"]
             if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
                 user_found = True
-                # Redirect to event UI after successful login
-                from event_ui import event_ui
+
+                messagebox.showinfo(
+                    "Login Successful", f"Welcome back, {user_data.get('name', 'User')}!")
+
                 # Call the function to load the event UI
-                show_EventPlannerApp(app)
+                # Call the function to load the event UI
+                EventPlannerApp(app)
                 break
 
         if not user_found:
