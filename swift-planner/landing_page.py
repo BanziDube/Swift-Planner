@@ -29,33 +29,29 @@ def show_landing_page(root, on_signup=None, on_signin=None):
                            font=("Arial", 12), bg="red", fg="black",  borderwidth=5, command=on_signin)
     signin_btn.pack(side="left")
 
+    heading_label = tk.Label(
+        root,
+        text="Welcome to Swift Planner, where event planning is made simple.",
+        font=("Helvetica", 22, "bold"),
+        fg="black",
+        bg="white",
+    )
+    heading_label.pack(pady=(20, 10))
+
     # Slideshow Frame
     slideshow_frame = tk.Frame(root, bg="white")
     slideshow_frame.pack(pady=20)
 
     image_paths = [
-        ("images/wedding.jpg", "Weddings"),
-        ("images/conference.jpg", "Conferences"),
-        ("images/birthday.jpg", "Birthdays"),
-        ("images/launch.jpg", "Product Launches"),
-        ("images/babyshower.jpg", "Baby Showers")
+        ("images/wedding.png", "Weddings"),
+        ("images/conference.png", "Conferences"),
+        ("images/birthday.png", "Birthdays"),
+        ("images/launch.png", "Product Launches"),
+        ("images/babyshower.png", "Baby Showers")
     ]
 
     slide_label = tk.Label(slideshow_frame)
     slide_label.pack()
-
-    heading_label = tk.Label(
-        slideshow_frame,
-        text="Welcome to Swift Planner, where event planning is made simple.",
-        font=("Helvetica", 22, "bold"),
-        fg="black",
-        bg="white",  # Match background to avoid TclError
-    )
-    heading_label.place(relx=0.5, rely=0.08, anchor="center")
-
-    caption_label = tk.Label(slideshow_frame, text="", font=(
-        "Helvetica", 16, "bold"), fg="white", bg="black", padx=300, pady=0)
-    caption_label.place(relx=0.02, rely=0.85, anchor="sw")
 
     def update_slideshow(index=0):
         path, caption = image_paths[index]
@@ -65,8 +61,6 @@ def show_landing_page(root, on_signup=None, on_signin=None):
 
         slide_label.config(image=photo)
         slide_label.image = photo
-
-        caption_label.config(text=caption)
 
         root.after(4000, lambda: update_slideshow(
             (index + 1) % len(image_paths)))

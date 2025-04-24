@@ -5,11 +5,11 @@ import os
 
 # List of image paths and their overlay texts
 IMAGES = [
-    ("images/wedding.jpg", "Weddings"),
-    ("images/conference.jpg", "Conferences"),
-    ("images/birthday.jpg", "Birthdays"),
-    ("images/launch.jpg", "Product Launches"),
-    ("images/babyshower.jpg", "Baby Showers")
+    ("images/wedding.png", "Weddings"),
+    ("images/conference.png", "Conferences"),
+    ("images/birthday.png", "Birthdays"),
+    ("images/launch.png", "Product Launches"),
+    ("images/babyshower.png", "Baby Showers")
 ]
 
 
