@@ -103,8 +103,8 @@ def show_login(app, users):
                     "Login Successful", f"Welcome back, {user_data.get('name', 'User')}!")
 
                 # Clear the login UI before loading EventPlannerApp
-            for widget in app.winfo_children():
-                widget.destroy()
+                for widget in app.winfo_children():
+                    widget.destroy()
 
                 # Load the event UI
                 EventPlannerApp(app)
