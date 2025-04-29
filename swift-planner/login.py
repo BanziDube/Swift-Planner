@@ -85,7 +85,7 @@ def show_login(app, users):
             messagebox.showerror("Error", "Both fields are required.")
             return
 
-        # Check if the email exists in Firebase Firestore
+         # Check if the email exists in Firebase Firestore
         db = firestore.client()
         users_ref = db.collection("users")
         query = users_ref.where("email", "==", email).stream()
@@ -93,6 +93,7 @@ def show_login(app, users):
         user_found = False
         for user in query:
             user_data = user.to_dict()
+
             # Hashed password in Firebase
             stored_password = user_data["password"]
             if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
@@ -101,8 +102,11 @@ def show_login(app, users):
                 messagebox.showinfo(
                     "Login Successful", f"Welcome back, {user_data.get('name', 'User')}!")
 
-                # Call the function to load the event UI
-                # Call the function to load the event UI
+                # Clear the login UI before loading EventPlannerApp
+            for widget in app.winfo_children():
+                widget.destroy()
+
+                # Load the event UI
                 EventPlannerApp(app)
                 break
 
