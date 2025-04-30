@@ -1,8 +1,6 @@
-# landing_page.py
 import tkinter as tk
 from tkinter import ttk
 from PIL import Image, ImageTk
-import os
 
 
 def show_landing_page(root, on_signup=None, on_signin=None):
@@ -11,36 +9,63 @@ def show_landing_page(root, on_signup=None, on_signin=None):
 
     root.configure(bg="white")
 
-    navbar = tk.Frame(root, bg="black", height=50)
-    navbar.pack(fill="x", side="top")
+    # Make window responsive
+    root.columnconfigure(0, weight=1)
+    root.rowconfigure(0, weight=1)
 
-    logo = tk.Label(navbar, text="Swift Planner", bg="black", fg="white",
-                    font=("Times New Roman", 20, "bold"))
+    # Create a scrollable canvas
+    canvas = tk.Canvas(root, bg="white")
+    scrollbar = tk.Scrollbar(root, orient="vertical", command=canvas.yview)
+
+    scroll_frame = tk.Frame(canvas, bg="white")
+    scroll_frame.bind("<Configure>", lambda e: canvas.configure(
+        scrollregion=canvas.bbox("all")))
+
+    canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+    canvas.configure(yscrollcommand=scrollbar.set)
+
+    canvas.pack(side="left", fill="both", expand=True)
+    scrollbar.pack(side="right", fill="y")
+
+    # Define custom button style for rounded corners
+    style = ttk.Style()
+    style.configure("RoundedButton.TButton",
+                    background="#be2ed6",
+                    foreground="black",
+                    padding=6,
+                    relief="flat")
+
+    # Navbar (Full width, dynamic resizing)
+    navbar = tk.Frame(scroll_frame, bg="#222831", height=60)
+    navbar.pack(fill="x", expand=True)
+
+    logo = tk.Label(navbar, text="Swift Planner", bg="#222831", fg="white",
+                    font=("Helvetica", 22, "bold"))
     logo.pack(side="left", padx=20, pady=10)
 
-    nav_buttons = tk.Frame(navbar, bg="black")
+    nav_buttons = tk.Frame(navbar, bg="#222831")
     nav_buttons.pack(side="right", padx=20)
 
-    signup_btn = tk.Button(nav_buttons, text="Sign Up",
-                           font=("Arial", 12), bg="red", fg="black", borderwidth=5, command=on_signup)
+    signup_btn = ttk.Button(nav_buttons, text="Sign Up",
+                            style="RoundedButton.TButton", command=on_signup)
     signup_btn.pack(side="left", padx=10)
 
-    signin_btn = tk.Button(nav_buttons, text="Sign In",
-                           font=("Arial", 12), bg="red", fg="black",  borderwidth=5, command=on_signin)
-    signin_btn.pack(side="left")
+    signin_btn = ttk.Button(nav_buttons, text="Sign In",
+                            style="RoundedButton.TButton", command=on_signin)
+    # Adjusted padding for better spacing
+    signin_btn.pack(side="left", padx=30)
 
-    heading_label = tk.Label(
-        root,
-        text="Welcome to Swift Planner, where event planning is made simple.",
-        font=("Helvetica", 22, "bold"),
-        fg="black",
-        bg="white",
-    )
-    heading_label.pack(pady=(20, 10))
+    # Hero Section with Full-Width Slideshow
+    hero_section = tk.Frame(scroll_frame, bg="white")
+    hero_section.pack(fill="x", pady=20, expand=True)
 
-    # Slideshow Frame
-    slideshow_frame = tk.Frame(root, bg="white")
-    slideshow_frame.pack(pady=20)
+    heading_label = tk.Label(hero_section, text="Plan Your Events Effortlessly with Swift Planner",
+                             font=("Helvetica", 26, "bold"), fg="black", bg="white")
+    heading_label.pack(pady=(10, 20))
+
+    # Slideshow Frame (Responsive size adjustment)
+    slideshow_frame = tk.Frame(hero_section, bg="#393E46")
+    slideshow_frame.pack(fill="x", expand=True)
 
     image_paths = [
         ("images/wedding.png", "Weddings"),
@@ -51,12 +76,12 @@ def show_landing_page(root, on_signup=None, on_signin=None):
     ]
 
     slide_label = tk.Label(slideshow_frame)
-    slide_label.pack()
+    slide_label.pack(fill="x", expand=True)
 
     def update_slideshow(index=0):
         path, caption = image_paths[index]
         img = Image.open(path)
-        img = img.resize((1300, 350), Image.Resampling.LANCZOS)
+        img = img.resize((root.winfo_width(), 400), Image.Resampling.LANCZOS)
         photo = ImageTk.PhotoImage(img)
 
         slide_label.config(image=photo)
@@ -67,50 +92,24 @@ def show_landing_page(root, on_signup=None, on_signin=None):
 
     update_slideshow()
 
-    # Section: Summary + Contact
-    summary_contact_container = tk.Frame(root, bg="white")
-    summary_contact_container.pack(padx=20, pady=30, fill="both")
+    # Features Section (Fully responsive, updated design)
+    features_section = tk.Frame(scroll_frame, bg="#001F3F", padx=20,
+                                pady=30, highlightbackground="purple", highlightthickness=3)
+    features_section.pack(fill="x", expand=True)
 
-    # Summary (Left side)
-    summary_frame = tk.Frame(summary_contact_container, bg="white")
-    summary_frame.pack(side="left", padx=10, expand=True, fill="both")
+    tk.Label(features_section, text="Why Choose Swift Planner?", font=("Arial", 20, "bold"),
+             fg="white", bg="#001F3F").pack(pady=10)  # Centered heading
 
-    summary_label = tk.Label(summary_frame, text="Why Choose Swift Planner?", font=(
-        "Arial", 18, "bold"), fg="black", bg="white", anchor="w", justify="left")
-    summary_label.pack(anchor="w")
+    features_text = """✓ AI Assistant (SIA) for Smart Event Planning
+✓ Venue Suggestions Based on Your Preferences
+✓ Budget Estimations to Keep Your Event Organized
+✓ Personalized Event Recommendations"""
 
-    summary_text = """Swift Planner helps you plan and manage events with ease.
-From weddings and conferences to birthday parties and launches, 
-Swift Planner ensures a smooth and stress-free planning experience."""
-    summary_message = tk.Label(summary_frame, text=summary_text, font=(
-        "Arial", 12), fg="black", bg="white", justify="left", anchor="w")
-    summary_message.pack(anchor="w", pady=10)
+    features_label = tk.Label(features_section, text=features_text, font=("Arial", 14),
+                              fg="white", bg="#001F3F", anchor="w", justify="left")
+    features_label.pack(anchor="w", pady=10)
 
-    # Contact Form (Right side)
-    contact_frame = tk.LabelFrame(summary_contact_container, text="Contact Us", font=(
-        "Arial", 14, "bold"), bg="white")
-    contact_frame.pack(side="right", padx=10, fill="y")
-
-    name_entry = ttk.Entry(contact_frame, width=30)
-    email_entry = ttk.Entry(contact_frame, width=30)
-    message_entry = tk.Text(contact_frame, height=4, width=30)
-
-    ttk.Label(contact_frame, text="Name:", background="white").grid(
-        row=0, column=0, sticky="w", pady=5, padx=5)
-    name_entry.grid(row=0, column=1, pady=5, padx=5)
-
-    ttk.Label(contact_frame, text="Email:", background="white").grid(
-        row=1, column=0, sticky="w", pady=5, padx=5)
-    email_entry.grid(row=1, column=1, pady=5, padx=5)
-
-    ttk.Label(contact_frame, text="Message:", background="white").grid(
-        row=2, column=0, sticky="nw", pady=5, padx=5)
-    message_entry.grid(row=2, column=1, pady=5, padx=5)
-
-    send_btn = ttk.Button(contact_frame, text="Send")
-    send_btn.grid(row=3, column=1, sticky="e", pady=10, padx=5)
-
-    # Footer
-    footer = tk.Label(root, text="© 2025 Swift Planner | All rights reserved.", font=(
-        "Arial", 10), fg="gray", bg="white")
-    footer.pack(pady=10)
+    # Footer (Full width and responsive)
+    footer = tk.Label(scroll_frame, text="© 2025 Swift Planner | All rights reserved.",
+                      font=("Arial", 10), fg="gray", bg="#222831")
+    footer.pack(fill="x", pady=10, expand=True)

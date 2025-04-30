@@ -9,8 +9,23 @@ users = {}
 # Set up main app window
 root = tk.Tk()
 root.title("Swift Planner")
-root.geometry("1300x800")
-root.resizable(False, False)
+
+# Make the window resizable
+root.resizable(True, True)
+
+# Start in fullscreen
+root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
+
+# Allow fullscreen toggle
+
+
+def toggle_fullscreen(event=None):
+    root.attributes("-fullscreen", not root.attributes("-fullscreen"))
+
+
+root.bind("<F11>", toggle_fullscreen)  # Press F11 to toggle fullscreen
+root.bind("<Escape>", lambda e: root.attributes(
+    "-fullscreen", False))  # Escape key exits fullscreen
 
 # Landing Page with button handlers
 
@@ -23,7 +38,7 @@ def open_login():
     show_login(root, users)
 
 
-# Load landing page
+# Load landing page dynamically
 show_landing_page(root, on_signup=open_register, on_signin=open_login)
 
 # Start the GUI loop
