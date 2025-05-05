@@ -36,14 +36,14 @@ def show_landing_page(root, on_signup=None, on_signin=None):
                     relief="flat")
 
     # Navbar (Full width, dynamic resizing)
-    navbar = tk.Frame(scroll_frame, bg="#222831", height=60)
+    navbar = tk.Frame(scroll_frame, bg="#6f42c1", height=60)
     navbar.pack(fill="x", expand=True)
 
-    logo = tk.Label(navbar, text="Swift Planner", bg="#222831", fg="white",
+    logo = tk.Label(navbar, text="Swift Planner", bg="#6f42c1", fg="white",
                     font=("Helvetica", 22, "bold"))
     logo.pack(side="left", padx=20, pady=10)
 
-    nav_buttons = tk.Frame(navbar, bg="#222831")
+    nav_buttons = tk.Frame(navbar, bg="#6f42c1")
     nav_buttons.pack(side="right", padx=20)
 
     signup_btn = ttk.Button(nav_buttons, text="Sign Up",
