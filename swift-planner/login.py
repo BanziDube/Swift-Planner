@@ -1,121 +1,156 @@
 import tkinter as tk
 from tkinter import messagebox
+import pyrebase
 from PIL import Image, ImageTk
-from firebase_admin import firestore
-import bcrypt
-from event_ui import EventPlannerApp  # Import the event UI function
+import register  # Import whole module to prevent circular import issues
+from firebase_config import db
+from landing_page import show_landing_page
+
+# Firebase Configuration
+firebase_config = {
+    "apiKey": "AIzaSyBuX6tiEWaceoTsPwKhdy_pIYsd5FzdpY",
+    "authDomain": "swift-planner.firebaseapp.com",
+    "databaseURL": "https://console.firebase.google.com/u/1/project/swift-planner/settings/general/web:N2EwNWZmOGYtNzA1OS00ODI4LWFhYjgtNDViM2RmMGFkMGZm",
+    "projectId": "swift-planner",
+    "storageBucket": "swift-planner.appspot.com",
+    "messagingSenderId": "200233391727",
+    "appId": "1:200233391727:web:0036940cf9e08c7d591f9a"
+}
+
+firebase = pyrebase.initialize_app(firebase_config)
+auth = firebase.auth()
 
 
 def show_login(app, users):
-    from register import show_register
+    """Function to display the login screen."""
 
     for widget in app.winfo_children():
         widget.destroy()
 
-    app_width = 1600
-    app_height = 1600
-    app.geometry(f"{app_width}x{app_height}")
+    app.geometry("500x600")
+    app.configure(bg="#f0f0f0")
+    app.resizable(True, True)
 
-    # Load and set background image
+    # Create a menu bar
+    menu_bar = tk.Frame(app, bg="#6f42c1", height=50)
+    menu_bar.pack(fill="x", side="top")
+
+    # Load and display the logo
     try:
-        bg = Image.open("bg.jpg").resize((app_width, app_height))
-        bg_img = ImageTk.PhotoImage(bg)
-    except FileNotFoundError:
-        print("❌ bg.jpg not found.")
-        bg_img = None
+        logo_image = Image.open("swift.png")
+        logo_image = logo_image.resize((200, 60))
+        logo = ImageTk.PhotoImage(logo_image)
+        logo_label = tk.Label(menu_bar, image=logo, bg="#6f42c1")
+        logo_label.image = logo  # Keep reference to avoid garbage collection
+        logo_label.pack(side="left", padx=10, pady=5)
+    except Exception as e:
+        print(f"Error loading image: {e}")
 
-    canvas = tk.Canvas(app, width=app_width,
-                       height=app_height, highlightthickness=0)
-    canvas.pack(fill="both", expand=True)
+    # Create a burger menu button
+    burger_menu = tk.Button(menu_bar, text="☰", font=(
+        "Arial", 16), bg="#6f42c1", fg="white", bd=0)
+    burger_menu.pack(side="right", padx=10)
 
-    if bg_img:
-        canvas.create_image(0, 0, image=bg_img, anchor="nw")
-        canvas.image = bg_img  # Keep reference to avoid garbage collection
+    def toggle_menu():
+        popup = tk.Menu(app, tearoff=0)
+        popup.add_command(label="Home")
+        popup.add_command(label="Settings")
+        popup.add_command(label="Logout")
+        try:
+            popup.tk_popup(burger_menu.winfo_rootx(
+            ), burger_menu.winfo_rooty() + burger_menu.winfo_height())
+        finally:
+            popup.grab_release()
 
-    # Login container (on top)
-    container = tk.Frame(app, bg="#ffffff")
-    container.place(relx=0.5, rely=0.5, anchor="center", width=400, height=400)
+    burger_menu.config(command=toggle_menu)
 
-    # Title
-    tk.Label(container, text="Swift Planner", font=("Helvetica", 20,
-             "bold"), fg="#000000", bg="white").pack(pady=(20, 10))
+    # Heading section
+    heading_frame = tk.Frame(app, bg="#f0f0f0")
+    heading_frame.pack(pady=(40, 10))
 
-    # Email input with icon
-    tk.Label(container, text="Email", font=("Arial", 12),
-             fg="#333", bg="white").pack(pady=(10, 0))
+    tk.Label(heading_frame, text="Sign into your account", font=(
+        "Helvetica", 24, "bold"), fg="black", bg="#f0f0f0").pack()
+    tk.Label(heading_frame, text="Plan your next perfect event",
+             font=("Helvetica", 16), fg="gray", bg="#f0f0f0").pack()
+
+    # Login Container
+    container = tk.Frame(app, bg="#ffffff", bd=2, relief="groove")
+    container.place(relx=0.5, rely=0.55, anchor="center",
+                    width=400, height=350)
+
+    # Email Input
+    tk.Label(container, text="Email address", font=("Arial", 12), fg="#333",
+             bg="white", anchor="w").pack(fill="x", padx=20, pady=(10, 0))
     email_frame = tk.Frame(container, bg="white")
-    email_frame.pack(pady=(0, 10))
-
+    email_frame.pack(fill="x", padx=20, pady=(0, 10))
     entry_email = tk.Entry(email_frame, font=(
-        "Arial", 12), width=28, bd=1, relief="solid")
-    entry_email.pack(side="left")
+        "Arial", 12), width=30, bd=1, relief="solid")
+    entry_email.pack(side="left", expand=True, fill="x")
 
-    email_icon = tk.Label(email_frame, text="📧",
-                          bg="white", font=("Arial", 12))
-    email_icon.pack(side="left", padx=5)
-
-    # Password input with toggle
-    tk.Label(container, text="Password", font=("Arial", 12),
-             fg="#333", bg="white").pack(pady=(10, 0))
+    # Password Input
+    tk.Label(container, text="Password", font=("Arial", 12), fg="#333",
+             bg="white", anchor="w").pack(fill="x", padx=20, pady=(10, 0))
     password_frame = tk.Frame(container, bg="white")
-    password_frame.pack(pady=(0, 10))
-
+    password_frame.pack(fill="x", padx=20, pady=(0, 10))
     entry_password = tk.Entry(password_frame, show="*",
-                              font=("Arial", 12), width=28, bd=1, relief="solid")
-    entry_password.pack(side="left")
+                              font=("Arial", 12), width=30, bd=1, relief="solid")
+    entry_password.pack(side="left", expand=True, fill="x")
 
-    show_password = False
+    # Remember Me and Forgot Password
+    options_frame = tk.Frame(container, bg="white")
+    options_frame.pack(fill="x", padx=20, pady=(5, 10))
+    remember_me = tk.Checkbutton(
+        options_frame, text="Remember me", bg="white", font=("Arial", 10))
+    remember_me.pack(side="left")
+    tk.Label(options_frame, text="Forgot your password?", fg="blue", bg="white", font=(
+        "Arial", 10, "underline"), cursor="hand2").pack(side="right")
 
-    def toggle_password():
-        nonlocal show_password
-        show_password = not show_password
-        entry_password.config(show="" if show_password else "*")
-        toggle_btn.config(text="🙈" if show_password else "👁")
-
-    toggle_btn = tk.Button(password_frame, text="👁",
-                           command=toggle_password, bg="white", bd=0)
-    toggle_btn.pack(side="left", padx=5)
-
-    # Firebase login function
-    def login_user():
-        email = entry_email.get()
-        password = entry_password.get()
+    # ✅ LOGIN FUNCTION
+    def handle_login():
+        email = entry_email.get().strip()
+        password = entry_password.get().strip()
 
         if not email or not password:
-            messagebox.showerror("Error", "Both fields are required.")
+            messagebox.showwarning(
+                "Missing Info", "Please enter both email and password.")
             return
 
-         # Check if the email exists in Firebase Firestore
-        db = firestore.client()
-        users_ref = db.collection("users")
-        query = users_ref.where("email", "==", email).stream()
+        try:
+            user = auth.sign_in_with_email_and_password(email, password)
+            messagebox.showinfo("Login Successful", f"Welcome back, {email}!")
 
-        user_found = False
-        for user in query:
-            user_data = user.to_dict()
+            # Import and launch event UI
+            from event_ui import EventPlannerApp  # Delayed import to avoid circular issues
+            app.destroy()
+            event_root = tk.Tk()
+            EventPlannerApp(event_root)
+            event_root.mainloop()
 
-            # Hashed password in Firebase
-            stored_password = user_data["password"]
-            if bcrypt.checkpw(password.encode('utf-8'), stored_password.encode('utf-8')):
-                user_found = True
+        except Exception as e:
+            print("Firebase error:", e)
+            messagebox.showerror(
+                "Login Failed", "Invalid email or password. Please try again.")
 
-                messagebox.showinfo(
-                    "Login Successful", f"Welcome back, {user_data.get('name', 'User')}!")
+    # Sign In Button
+    tk.Button(container, text="Sign in", bg="#1565C0", fg="white", font=("Arial", 12, "bold"),
+              width=25, command=handle_login).pack(pady=15)
 
-                # Clear the login UI before loading EventPlannerApp
-                for widget in app.winfo_children():
-                    widget.destroy()
+    # Social Login Section
+    tk.Label(container, text="Or continue with", font=(
+        "Arial", 12), fg="gray", bg="white").pack(pady=(10, 5))
+    social_frame = tk.Frame(container, bg="white")
+    social_frame.pack()
+    tk.Button(social_frame, text="Google", bg="#db4437", fg="white", font=(
+        "Arial", 10, "bold"), width=12).pack(side="left", padx=10)
+    tk.Button(social_frame, text="Other", bg="#4285F4", fg="white",
+              font=("Arial", 10, "bold"), width=12).pack(side="left")
 
-                # Load the event UI
-                EventPlannerApp(app)
-                break
+    # Register Link
+    register_label = tk.Label(container, text="Not registered? Create an account", fg="blue", bg="white",
+                              font=("Arial", 10, "underline"), cursor="hand2")
 
-        if not user_found:
-            messagebox.showerror("Login Failed", "Invalid email or password.")
+    def go_to_register(event):
+        register.show_register(app, users)
 
-    # Buttons
-    tk.Button(container, text="Login", command=login_user, bg="#1565C0", fg="white",
-              font=("Arial", 8, "bold"), width=10).pack(pady=5)
-
-    tk.Button(container, text="Register", command=lambda: show_register(app, users), bg="#64B5F6", fg="white",
-              font=("Arial", 8, "bold"), width=10).pack(pady=5)
+    register_label.bind("<Button-1>", go_to_register)
+    register_label.pack(pady=10)
