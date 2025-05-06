@@ -3,16 +3,16 @@ from tkinter import messagebox
 import pyrebase
 from PIL import Image, ImageTk
 import register  # Import whole module to prevent circular import issues
-from firebase_config import db
-from landing_page import show_landing_page
+# Assuming this is your event planner app
+from event_ui import EventPlannerApp
 
 # Firebase Configuration
 firebase_config = {
-    "apiKey": "AIzaSyBuX6tiEWaceoTsPwKhdy_pIYsd5FzdpY",
+    "apiKey": "AIzaSyBuXq6tiEWaceoTsPwKhdy_pIYsd5FzdpY",
     "authDomain": "swift-planner.firebaseapp.com",
-    "databaseURL": "https://console.firebase.google.com/u/1/project/swift-planner/settings/general/web:N2EwNWZmOGYtNzA1OS00ODI4LWFhYjgtNDViM2RmMGFkMGZm",
+    "databaseURL": "https://console.firebase.google.com/u/1/project/swift-planner/settings/general/web:N2EwNWZmOGYtNzA1OS00ODI4LWFhYjgtNDViM2RmMGFkMGZm",  # ✅ Important
     "projectId": "swift-planner",
-    "storageBucket": "swift-planner.appspot.com",
+    "storageBucket": "swift-planner.appspot.com",  # ✅ Corrected
     "messagingSenderId": "200233391727",
     "appId": "1:200233391727:web:0036940cf9e08c7d591f9a"
 }
@@ -41,12 +41,12 @@ def show_login(app, users):
         logo_image = logo_image.resize((200, 60))
         logo = ImageTk.PhotoImage(logo_image)
         logo_label = tk.Label(menu_bar, image=logo, bg="#6f42c1")
-        logo_label.image = logo  # Keep reference to avoid garbage collection
+        logo_label.image = logo  # Keep reference
         logo_label.pack(side="left", padx=10, pady=5)
     except Exception as e:
         print(f"Error loading image: {e}")
 
-    # Create a burger menu button
+    # Burger menu
     burger_menu = tk.Button(menu_bar, text="☰", font=(
         "Arial", 16), bg="#6f42c1", fg="white", bd=0)
     burger_menu.pack(side="right", padx=10)
@@ -64,10 +64,9 @@ def show_login(app, users):
 
     burger_menu.config(command=toggle_menu)
 
-    # Heading section
+    # Headings
     heading_frame = tk.Frame(app, bg="#f0f0f0")
     heading_frame.pack(pady=(40, 10))
-
     tk.Label(heading_frame, text="Sign into your account", font=(
         "Helvetica", 24, "bold"), fg="black", bg="#f0f0f0").pack()
     tk.Label(heading_frame, text="Plan your next perfect event",
@@ -78,7 +77,7 @@ def show_login(app, users):
     container.place(relx=0.5, rely=0.55, anchor="center",
                     width=400, height=350)
 
-    # Email Input
+    # Email Entry
     tk.Label(container, text="Email address", font=("Arial", 12), fg="#333",
              bg="white", anchor="w").pack(fill="x", padx=20, pady=(10, 0))
     email_frame = tk.Frame(container, bg="white")
@@ -87,7 +86,7 @@ def show_login(app, users):
         "Arial", 12), width=30, bd=1, relief="solid")
     entry_email.pack(side="left", expand=True, fill="x")
 
-    # Password Input
+    # Password Entry
     tk.Label(container, text="Password", font=("Arial", 12), fg="#333",
              bg="white", anchor="w").pack(fill="x", padx=20, pady=(10, 0))
     password_frame = tk.Frame(container, bg="white")
@@ -96,7 +95,7 @@ def show_login(app, users):
                               font=("Arial", 12), width=30, bd=1, relief="solid")
     entry_password.pack(side="left", expand=True, fill="x")
 
-    # Remember Me and Forgot Password
+    # Remember Me
     options_frame = tk.Frame(container, bg="white")
     options_frame.pack(fill="x", padx=20, pady=(5, 10))
     remember_me = tk.Checkbutton(
@@ -105,37 +104,32 @@ def show_login(app, users):
     tk.Label(options_frame, text="Forgot your password?", fg="blue", bg="white", font=(
         "Arial", 10, "underline"), cursor="hand2").pack(side="right")
 
-    # ✅ LOGIN FUNCTION
+    # Firebase login logic
     def handle_login():
-        email = entry_email.get().strip()
-        password = entry_password.get().strip()
+        email = entry_email.get()
+        password = entry_password.get()
 
         if not email or not password:
-            messagebox.showwarning(
-                "Missing Info", "Please enter both email and password.")
+            messagebox.showerror("Error", "Both fields are required.")
             return
 
         try:
             user = auth.sign_in_with_email_and_password(email, password)
-            messagebox.showinfo("Login Successful", f"Welcome back, {email}!")
-
-            # Import and launch event UI
-            from event_ui import EventPlannerApp  # Delayed import to avoid circular issues
-            app.destroy()
-            event_root = tk.Tk()
-            EventPlannerApp(event_root)
-            event_root.mainloop()
-
+            messagebox.showinfo("Login Successful", f"Welcome, {email}!")
+            for widget in app.winfo_children():
+                widget.destroy()
+            EventPlannerApp(app)  # Replace with your app function
         except Exception as e:
-            print("Firebase error:", e)
+            error_message = str(e)
             messagebox.showerror(
-                "Login Failed", "Invalid email or password. Please try again.")
+                "Login Failed", "Invalid credentials. Please try again.")
+            print("Login error:", error_message)
 
-    # Sign In Button
+    # Login Button
     tk.Button(container, text="Sign in", bg="#1565C0", fg="white", font=("Arial", 12, "bold"),
               width=25, command=handle_login).pack(pady=15)
 
-    # Social Login Section
+    # Social login UI (non-functional placeholders)
     tk.Label(container, text="Or continue with", font=(
         "Arial", 12), fg="gray", bg="white").pack(pady=(10, 5))
     social_frame = tk.Frame(container, bg="white")

@@ -1,45 +1,42 @@
 import tkinter as tk
+from PIL import Image, ImageTk, ImageOps
+# Replace this with your real function
 from landing_page import show_landing_page
-from register import show_register
-from login import show_login
-
-# Store registered users in memory (you could use a database later)
-users = {}
-
-# Set up main app window
-root = tk.Tk()
-root.title("Swift Planner")
-
-# Make the window resizable
-root.resizable(True, True)
-
-# Start in fullscreen
-root.geometry(f"{root.winfo_screenwidth()}x{root.winfo_screenheight()}")
-
-# Allow fullscreen toggle
 
 
-def toggle_fullscreen(event=None):
-    root.attributes("-fullscreen", not root.attributes("-fullscreen"))
+def show_landing():
+    splash.destroy()
+    app = tk.Tk()
+    app.title("Swift Planner")
+    app.state('zoomed')  # This makes the main window fullscreen
+    show_landing_page(app)
+    app.mainloop()
 
 
-root.bind("<F11>", toggle_fullscreen)  # Press F11 to toggle fullscreen
-root.bind("<Escape>", lambda e: root.attributes(
-    "-fullscreen", False))  # Escape key exits fullscreen
+# Create splash screen window
+splash = tk.Tk()
+splash.title("Splash Screen")
 
-# Landing Page with button handlers
+# Get screen size
+screen_width = splash.winfo_screenwidth()
+screen_height = splash.winfo_screenheight()
 
+# Set splash window size and position
+splash.geometry(f"{screen_width}x{screen_height}+0+0")
 
-def open_register():
-    show_register(root, users)
+# Load and resize image
+try:
+    image = Image.open("splash_image.png")
+    image = image.resize((screen_width, screen_height),
+                         Image.Resampling.LANCZOS)
+    photo = ImageTk.PhotoImage(image)
 
+    label = tk.Label(splash, image=photo)
+    label.image = photo
+    label.pack()
+except Exception as e:
+    print(f"Error loading splash image: {e}")
 
-def open_login():
-    show_login(root, users)
-
-
-# Load landing page dynamically
-show_landing_page(root, on_signup=open_register, on_signin=open_login)
-
-# Start the GUI loop
-root.mainloop()
+# Show landing page after 5 seconds
+splash.after(5000, show_landing)
+splash.mainloop()

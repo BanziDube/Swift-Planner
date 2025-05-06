@@ -17,7 +17,7 @@ class LandingPage(tk.Frame):
     def __init__(self, parent, controller):
         super().__init__(parent)
         self.controller = controller
-        self.configure(bg="white")
+        self.configure(bg="#6f42c1")  # Updated background color
 
         # Navbar
         navbar = tk.Frame(self, bg="#333", height=50)
@@ -46,28 +46,31 @@ class LandingPage(tk.Frame):
 
         # Welcome Text
         self.title = tk.Label(self, text="Plan your events effortlessly with Swift Planner",
-                              font=("Helvetica", 16), bg="white")
+                              # Background color updated
+                              font=("Helvetica", 16), bg="#6f42c1", fg="white")
         self.title.pack(pady=10)
         self.subtitle = tk.Label(
-            self, text="Smarter | Simpler | Smoother", font=("Arial", 12), bg="white")
+            # Updated color
+            self, text="Smarter | Simpler | Smoother", font=("Arial", 12), bg="#6f42c1", fg="white")
         self.subtitle.pack(pady=5)
 
         # Footer (Socials + Contact)
-        footer = tk.Frame(self, bg="#f0f0f0")
+        footer = tk.Frame(self, bg="#6f42c1")  # Footer matches the theme
         footer.pack(fill="x", side="bottom", pady=10)
 
         contact_label = tk.Label(
-            footer, text="Contact Us: support@swiftplanner.com", bg="#f0f0f0")
+            # Updated footer color
+            footer, text="Contact Us: support@swiftplanner.com", bg="#6f42c1", fg="white")
         contact_label.pack(pady=5)
 
-        socials = tk.Frame(footer, bg="#f0f0f0")
+        socials = tk.Frame(footer, bg="#6f42c1")
         socials.pack()
         for icon in ["facebook", "instagram", "twitter"]:
             try:
                 img = Image.open(f"images/{icon}-icon.png")
                 img = img.resize((24, 24))
                 img = ImageTk.PhotoImage(img)
-                label = tk.Label(socials, image=img, bg="#f0f0f0")
+                label = tk.Label(socials, image=img, bg="#6f42c1")
                 label.image = img  # Keep reference
                 label.pack(side="left", padx=5)
             except:
@@ -90,9 +93,28 @@ class LandingPage(tk.Frame):
         self.slide_index = (self.slide_index + 1) % len(IMAGES)
         self.after(4000, self.show_slide)
 
-# Controller stub for navigation
+
+# 🌟 Splash Screen Integration
+def show_splash():
+    splash = tk.Tk()
+    splash.title("Swift Planner")
+    splash.geometry("500x300")
+
+    image_path = "assets/splash_image.png"
+    img = Image.open(image_path)
+    img = img.resize((500, 300), Image.Resampling.LANCZOS)
+    photo = ImageTk.PhotoImage(img)
+
+    logo_label = tk.Label(splash, image=photo, bg="#6f42c1")
+    logo_label.image = photo
+    logo_label.pack(expand=True)
+
+    # Transition to landing page after 5 seconds
+    splash.after(5000, show_landing)
+    splash.mainloop()
 
 
+# 🎯 Controller stub for navigation
 def show_landing():
     root = tk.Tk()
     root.title("Swift Planner - Landing")
@@ -110,5 +132,6 @@ def show_landing():
     root.mainloop()
 
 
+# ✅ Run splash screen first
 if __name__ == '__main__':
-    show_landing()
+    show_splash()
